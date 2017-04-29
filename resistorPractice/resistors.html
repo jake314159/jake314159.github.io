@@ -1,0 +1,190 @@
+
+
+<html>
+
+<head>
+	<title>Resistor Color Code Quiz</title>
+	<script
+		src="https://code.jquery.com/jquery-3.2.1.min.js"
+		integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+		crossorigin="anonymous"></script>
+	<style>
+		#resistor_img {
+		}
+		.band {
+			height: 67px;
+			width: 20px;
+			position: absolute;
+			top: 14px;
+			background-color: black;
+		}
+		#band0 {
+			left: 133px;
+		}
+		#band1 {
+			left: 163px;
+		}
+		#band2 {
+			left: 193px;
+		}
+		#bandT {
+			left: 280px;
+			background-color: #CFB53B;
+		}
+	</style>
+	<script>
+
+		$(function() {
+			var band = [
+				$('#band0'),
+				$('#band1'),
+				$('#band2')
+			];
+			var vals = [randomN(), randomN(), randomN(8)];
+			var map = {
+				'-3': "#FF69B4",
+				'-2': "#COCOCO",
+				'-1': "#CFB53B",
+				0: "black",
+				1: "#964B00",
+				2: "#FF0000",
+				3: "#FFA500",
+				4: "#FFFF00",
+				5: "#9ACD32",
+				6: "#6495ED",
+				7: "#9400D3",
+				8: "#A0A0A0",
+				9: "#FFFFFF",
+			};
+			var score = 0;
+			var total = 0;
+			function colorBand(b, value) {
+				var color = map[value];
+				band[b].css('background-color', color);
+			}
+			function valueToWord(v) {
+				if(v >= 1000000) {
+					return v/1000000 + 'M';
+				} else if(v >= 1000) {
+					return v/1000 + 'k';
+				} else {
+					return v + '';
+				}
+			}
+			function bandsToValue(b1, b2, b3) {
+				var v = b1*10 + b2;
+				if(b3 > 0) {
+					for(var i=0; i<b3; i++) v = v*10;
+				} else if(b3 < 0) {
+					for(var i=0; i<b3; i++) v = v/10;
+				}
+				return v;
+			}
+			function randomN(min, upper) {
+				if(!min) min = 0;
+				if(!upper) upper = 10;
+				return Math.floor(Math.random() * (upper-min)) + min;
+			}
+			function randomBands() {
+				vals = [randomN(1,9), randomN(), randomN(0, 8)];
+				colorBand(0, vals[0]);
+				colorBand(1, vals[1]);
+				colorBand(2, vals[2]);
+				console.log(bandsToValue(vals[0],vals[1],vals[2]));
+				console.log(valueToWord(bandsToValue(vals[0],vals[1],vals[2])));
+			}
+			console.log("START");
+			randomBands();
+			//colorBand(0, 2);
+			//colorBand(1, 1);
+			//colorBand(2, 3);
+			//console.log(bandsToValue(2,1,3));
+			//console.log(valueToWord(bandsToValue(2,1,3)));
+			function checkAnswer() {
+				var answer = $('#ans').val();
+				var correct = valueToWord(bandsToValue(vals[0],vals[1],vals[2]));
+				var row = $('<tr>');
+				if(answer == correct) {
+					console.log("WIN");
+					row.append($('<th>').html("WIN"));
+					$('#ans').css('background-color', '#9ACD32');
+					score++;
+				} else {
+					console.log("FAIL");
+					row.append($('<th>').html("FAIL").css('color', 'red'));
+					$('#ans').css('background-color', 'red');
+				}
+				total++;
+				row.append($('<th>').html(answer));
+				row.append($('<th>').html(correct));
+				row.append($('<th>').css("background-color", map[vals[0]]));
+				row.append($('<th>').css("background-color", map[vals[1]]));
+				row.append($('<th>').css("background-color", map[vals[2]]));
+				$('#results').prepend(row);
+				randomBands();
+				$('#ans').val('').focus();
+				var percent = 0;
+				if(score > 0) {
+					percent = Math.floor((score/total) * 100);
+				}
+				$('#score').html(score + ' out of ' + total + '.<br />' + percent + '%');
+				setTimeout(function() {
+					$('#ans').css('background-color', 'white');
+				}, 200)
+			}
+			$('#okButton').click(checkAnswer);
+			$('#ans').keyup(function (e) {
+				if (e.keyCode === 13) {
+					checkAnswer();
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+
+<div>
+<img src="./resistor.png">
+
+<div id="band0" class="band"></div>
+<div id="band1" class="band"></div>
+<div id="band2" class="band"></div>
+
+
+<div id="bandT" class="band"></div>
+
+</div>
+
+
+<b> Answer: </b><br />
+<input type="text" id="ans"/> <button id="okButton">ok</button>
+
+<br />
+<h3 id="score"></h3>
+<br />
+
+<table>
+	<thead>
+		<tr>
+			<th style="height: 30px; width: 160px;">&nbsp;</th>
+			<th style="width: 70px;">Answer</th>
+			<th style="width: 70px;">Correct</th>
+			<th style="width: 10px;"></th>
+			<th style="width: 10px;"></th>
+			<th style="width: 10px;"></th>
+		<tr>
+	<thead>
+	<tbody id="results">
+		<!-- <tr>
+			<th style="height: 30px; width: 100px;">FAIL</th>
+			<th style="width: 50px;">10k</th>
+			<th style="width: 50px;">20k</th>
+			<th style="background-color: #964B00; width: 10px;"></th>
+			<th style="background-color: black; width: 10px;"></th>
+			<th style="background-color: #964B00; width: 10px;"></th>
+		<tr> -->
+	</tbody>
+</table>
+
+</body>
+</html>
